@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
+          <Navbar step={1} />
           <main>{children}</main>
         </ThemeProvider>
       </body>
