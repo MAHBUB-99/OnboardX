@@ -10,6 +10,8 @@ import { Form } from "@/components/ui/form";
 import Page1_Personal_info from "./Page1_Personal_Info";
 import Page2_Job_Details from "./Page2_Job_Details";
 import Page3_Skills from "./Page3_Skills";
+import Page4_Emergency_Contact from "./Page4_Emergency_Contact";
+import Page5_Review from "./Page5_Review";
 
 const STEP_FIELDS = {
   1: ["fullName", "email", "phone", "dob", "profilePic"],
@@ -89,6 +91,7 @@ export default function OnboardingPage() {
   const next = async () => {
     const fields = STEP_FIELDS[step] || [];
     const ok = await trigger(fields);
+    console.log(ok)
     if (ok) setStep((s) => Math.min(5, s + 1));
   };
 
@@ -121,7 +124,7 @@ export default function OnboardingPage() {
     }
 
     try {
-      const res = await fetch("/api/submit", {
+      const res = await fetch("/api", {
         method: "POST",
         body: fd,
       });
@@ -148,6 +151,9 @@ export default function OnboardingPage() {
           {step === 1 && <Page1_Personal_info formMethods={formMethods} />}
           {step === 2 && <Page2_Job_Details formMethods={formMethods}/>}
           {step === 3 && <Page3_Skills formMethods={formMethods}/>}
+          {step === 4 && <Page4_Emergency_Contact formMethods={formMethods}/>}
+          {step === 5 && <Page5_Review formMethods={formMethods}/>}
+
         </div>
 
 
@@ -169,12 +175,12 @@ export default function OnboardingPage() {
         </div>
 
         {/* small debug: draft preview (remove in production) */}
-        <details className="mt-4 text-xs text-gray-600">
+        {/* <details className="mt-4 text-xs text-gray-600">
           <summary className="cursor-pointer">Draft preview (debug)</summary>
           <pre className="whitespace-pre-wrap text-xs bg-gray-50 p-2 rounded mt-2">
             {JSON.stringify(draft, null, 2)}
           </pre>
-        </details>
+        </details> */}
       </form>
     </Form>
   );
