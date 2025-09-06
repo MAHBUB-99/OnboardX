@@ -5,7 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { fullSchema } from "../../lib/schemas";
-import Page1_Personal_info from "./Page1_Personal_info";
+
+import Page1_Personal_info from "./Page1_Personal_Info";
 
 import { Form } from "@/components/ui/form";
 
