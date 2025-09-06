@@ -147,6 +147,22 @@ export default function OnboardingPage() {
         onSubmit={formMethods.handleSubmit(onSubmit)}
         className="space-y-8 my-4 flex flex-col items-center"
       >
+        <div className="flex flex-wrap justify-center gap-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className={`
+                px-5 py-2 rounded-sm font-bold transition-colors
+                ${i === step 
+                  ? "bg-primary text-primary-foreground" 
+                  : "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground"
+                }
+              `}
+            >
+              Step {i}
+            </div>
+          ))}
+        </div>
         <div>
           {step === 1 && <Page1_Personal_info formMethods={formMethods} />}
           {step === 2 && <Page2_Job_Details formMethods={formMethods}/>}
