@@ -16,22 +16,29 @@ import { skillsByDepartment } from "../../lib/data"; // Adjust path if needed
 export default function Page3_Skills({ formMethods }) {
   const { control, watch, formState } = formMethods;
   const isSubmitting = formState.isSubmitting;
+  /**
+   * Watch important fields for dynamic rendering
+   */
   const department = watch("department") || "";
   const selectedSkills = watch("primarySkills") || [];
   const remotePreference = watch("remotePreference") ?? 0;
   const managerApproved = watch("managerApproved") ?? false;
   const extraNotes = watch("extraNotes") || "";
-
-  // Get skills for selected department
+  /**
+   * Build skills list dynamically:
+   * - Show department-specific skills if selected
+   * - Otherwise show all skills
+   */
   const skillsList = useMemo(() => {
     if (department && skillsByDepartment[department]) {
       return skillsByDepartment[department];
     }
-    // fallback: show all skills if department not selected
     return Object.values(skillsByDepartment).flat();
   }, [department]);
-
-  // Helper for skill selection
+  /**
+   * Handle checkbox selection for skills
+   * Ensures `primarySkills` field updates properly
+   */
   const handleSkillChange = (skill, checked, onChange) => {
     let updated = Array.isArray(selectedSkills) ? [...selectedSkills] : [];
     if (checked) {
@@ -74,7 +81,6 @@ export default function Page3_Skills({ formMethods }) {
         )}
       />
 
-      {/* Experience for each selected skill */}
       {selectedSkills.length > 0 && (
         <div className="space-y-2">
           <FormLabel>Experience for Each Skill (years)</FormLabel>
@@ -107,7 +113,6 @@ export default function Page3_Skills({ formMethods }) {
         </div>
       )}
 
-      {/* Preferred Working Hours */}
       <div className="flex gap-5 items-end">
         <FormField
           control={control}
@@ -148,7 +153,6 @@ export default function Page3_Skills({ formMethods }) {
         />
       </div>
 
-      {/* Remote Work Preference */}
       <FormField
         control={control}
         name="remotePreference"
@@ -172,7 +176,6 @@ export default function Page3_Skills({ formMethods }) {
         )}
       />
 
-      {/* Manager Approved checkbox if remotePreference > 50 */}
       {remotePreference > 50 && (
         <FormField
           control={control}
@@ -193,7 +196,6 @@ export default function Page3_Skills({ formMethods }) {
         />
       )}
 
-      {/* Extra Notes */}
       <FormField
         control={control}
         name="extraNotes"

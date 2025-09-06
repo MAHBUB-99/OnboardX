@@ -16,9 +16,31 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
+/**
+ * Page1_Personal_Info Component
+ * -----------------------------
+ * Step 1 of the multi-step onboarding form.
+ *
+ * Purpose:
+ * Collects basic personal information such as:
+ * - Full Name
+ * - Email Address
+ * - Phone Number
+ * - Date of Birth
+ * - Profile Picture (with preview)
+ *
+ * Features:
+ * - Integrates with React Hook Form (formMethods is passed as a prop)
+ * - Client-side validation handled by Zod schema
+ * - Realtime image preview for profile picture upload
+ * - Disables inputs while form is submitting
+ */
 export default function Page1_Personal_Info({ formMethods }) {
   const { isSubmitting, isValid } = formMethods.formState;
   const { watch } = formMethods;
+  /**
+  * Watch profilePic field to enable image preview
+  */
   const profilePic = watch("profilePic");
 
   return (

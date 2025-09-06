@@ -1,18 +1,22 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { fullSchema } from "../../lib/schemas";
-import { Form } from "@/components/ui/form";
 
 import Page1_Personal_info from "./Page1_Personal_Info";
 import Page2_Job_Details from "./Page2_Job_Details";
 import Page3_Skills from "./Page3_Skills";
 import Page4_Emergency_Contact from "./Page4_Emergency_Contact";
 import Page5_Review from "./Page5_Review";
-
+import Success from "./Sucess";
+/**
+ * Mapping of form steps to their corresponding field names.
+ * Each step validates only its relevant fields.
+ */
 const STEP_FIELDS = {
   1: ["fullName", "email", "phone", "dob", "profilePic"],
   2: ["department", "position", "startDate", "jobType", "salary", "manager"],
@@ -32,8 +36,21 @@ const STEP_FIELDS = {
   ],
   5: ["confirm"],
 };
-
+/**
+ * OnboardingPage Component
+ * ------------------------
+ * A multi-step onboarding form built with React Hook Form, Zod validation,
+ * and modular step components.
+ *
+ * Features:
+ * - Step-by-step form navigation with validation at each stage
+ * - Draft saving in local state while user progresses
+ * - Confirmation guard when attempting to leave with unsaved changes
+ * - File upload (profile picture)
+ * - Final data submission to API as FormData
+ */
 export default function OnboardingPage() {
+  // Initialize React Hook Form with Zod validation and default values
   const formMethods = useForm({
     resolver: zodResolver(fullSchema),
     defaultValues: {
@@ -67,7 +84,9 @@ export default function OnboardingPage() {
     formMethods;
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState(formMethods.getValues());
-
+  /**
+   * Watch form values to keep draft state updated.
+   */
   useEffect(() => {
     const subscription = watch((value) => {
       setDraft(value);
@@ -76,7 +95,9 @@ export default function OnboardingPage() {
       if (subscription && subscription.unsubscribe) subscription.unsubscribe();
     };
   }, [watch]);
-
+  /**
+   * Add beforeunload listener to warn user about unsaved changes.
+   */
   useEffect(() => {
     const handler = (e) => {
       if (formState.isDirty) {
@@ -87,18 +108,27 @@ export default function OnboardingPage() {
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [formState.isDirty]);
-
+  /**
+   * Proceed to next step if current step’s fields are valid.
+   */
   const next = async () => {
     const fields = STEP_FIELDS[step] || [];
     const ok = await trigger(fields);
-    console.log(ok)
+    console.log(ok);
     if (ok) setStep((s) => Math.min(5, s + 1));
   };
-
+  /**
+   * Go back to the previous step.
+   */
   const prev = () => {
     setStep((s) => Math.max(1, s - 1));
   };
-
+  /**
+   * Handle final form submission:
+   * - Transform salary field into either hourlyRate or annualSalary
+   * - Build FormData payload (supports file upload)
+   * - POST data to /api endpoint
+   */
   const onSubmit = async (data) => {
     const out = { ...data };
     if (out.jobType === "Contract") {
@@ -108,7 +138,7 @@ export default function OnboardingPage() {
       out.annualSalary = out.salary;
       delete out.salary;
     }
-
+    // Build FormData for API submission
     const fd = new FormData();
     for (const key of Object.keys(out)) {
       if (key === "profilePic" && out.profilePic && out.profilePic[0]) {
@@ -143,61 +173,72 @@ export default function OnboardingPage() {
 
   return (
     <Form {...formMethods}>
-      <form
-        onSubmit={formMethods.handleSubmit(onSubmit)}
-        className="space-y-8 my-4 flex flex-col items-center"
-      >
-        <div className="flex flex-wrap justify-center gap-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className={`
-                px-5 py-2 rounded-sm font-bold transition-colors
-                ${i === step 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground"
+      <div className="border border-gray-300 rounded-xl p-8 w-full max-w-3xl mx-auto">
+        <form
+          onSubmit={formMethods.handleSubmit(onSubmit)}
+          className="space-y-8 my-2 flex flex-col items-center"
+        >
+          <div className="flex flex-wrap justify-center gap-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className={`
+                px-5 py-2 rounded-full font-bold transition-colors
+                ${
+                  i === step
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground"
                 }
               `}
+              >
+                Step {i}
+              </div>
+            ))}
+          </div>
+          <div>
+            {step === 1 && <Page1_Personal_info formMethods={formMethods} />}
+            {step === 2 && <Page2_Job_Details formMethods={formMethods} />}
+            {step === 3 && <Page3_Skills formMethods={formMethods} />}
+            {step === 4 && (
+              <Page4_Emergency_Contact formMethods={formMethods} />
+            )}
+            {step === 5 && <Page5_Review formMethods={formMethods} />}
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-2 w-full max-w-md mt-6">
+            <Button
+              type="button"
+              disabled={step === 1}
+              onClick={prev}
+              variant="outline"
             >
-              Step {i}
-            </div>
-          ))}
-        </div>
-        <div>
-          {step === 1 && <Page1_Personal_info formMethods={formMethods} />}
-          {step === 2 && <Page2_Job_Details formMethods={formMethods}/>}
-          {step === 3 && <Page3_Skills formMethods={formMethods}/>}
-          {step === 4 && <Page4_Emergency_Contact formMethods={formMethods}/>}
-          {step === 5 && <Page5_Review formMethods={formMethods}/>}
-
-        </div>
-
-
-        <div className="flex flex-col sm:flex-row sm:justify-between gap-2 w-full max-w-md mt-6">
-          
-            <Button type="button" disabled= {step === 1} onClick={prev} variant="outline">
               Back
             </Button>
 
-          {step < 5 ? (
-            <Button type="button" onClick={next} variant="outline">
-              Next
-            </Button>
-          ) : (
-            <Button type="submit" disabled={formState.isSubmitting || !formState.isValid} variant="outline">
-              Submit
-            </Button>
-          )}
-        </div>
+            {step < 5 ? (
+              <Button type="button" onClick={next} variant="outline">
+                Next
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                disabled={formState.isSubmitting || !formState.isValid}
+                variant="outline"
+              >
+                Submit
+              </Button>
+            )}
+          </div>
 
-        {/* small debug: draft preview (remove in production) */}
-        {/* <details className="mt-4 text-xs text-gray-600">
+          {/* small debug: draft preview (remove in production) */}
+          {/* <details className="mt-4 text-xs text-gray-600">
           <summary className="cursor-pointer">Draft preview (debug)</summary>
           <pre className="whitespace-pre-wrap text-xs bg-gray-50 p-2 rounded mt-2">
             {JSON.stringify(draft, null, 2)}
           </pre>
         </details> */}
-      </form>
+        </form>
+      </div>
     </Form>
   );
 }
