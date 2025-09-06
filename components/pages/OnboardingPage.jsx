@@ -80,6 +80,8 @@ export default function OnboardingPage() {
     },
   });
 
+  const [submitted, setSubmitted] = useState(false);
+
   const { handleSubmit, trigger, watch, getValues, formState, reset } =
     formMethods;
   const [step, setStep] = useState(1);
@@ -138,7 +140,7 @@ export default function OnboardingPage() {
       out.annualSalary = out.salary;
       delete out.salary;
     }
-    // Build FormData for API submission
+
     const fd = new FormData();
     for (const key of Object.keys(out)) {
       if (key === "profilePic" && out.profilePic && out.profilePic[0]) {
@@ -154,15 +156,12 @@ export default function OnboardingPage() {
     }
 
     try {
-      const res = await fetch("/api", {
-        method: "POST",
-        body: fd,
-      });
+      const res = await fetch("/api", { method: "POST", body: fd });
       const json = await res.json();
       console.log("Submit response:", json);
-      alert("Form submitted — check console for response");
-      reset();
-      setStep(1);
+
+      // Show success page
+      setSubmitted(true);
     } catch (err) {
       console.error("Submit failed", err);
       alert("Submit failed (check console)");
@@ -174,15 +173,24 @@ export default function OnboardingPage() {
   return (
     <Form {...formMethods}>
       <div className="border border-gray-300 rounded-xl p-8 w-full max-w-3xl mx-auto">
-        <form
-          onSubmit={formMethods.handleSubmit(onSubmit)}
-          className="space-y-8 my-2 flex flex-col items-center"
-        >
-          <div className="flex flex-wrap justify-center gap-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className={`
+        {submitted ? (
+          <Success
+            onRestart={() => {
+              setSubmitted(false);
+              setStep(1);
+              reset(); // reset form values
+            }}
+          />
+        ) : (
+          <form
+            onSubmit={formMethods.handleSubmit(onSubmit)}
+            className="space-y-8 my-2 flex flex-col items-center"
+          >
+            <div className="flex flex-wrap justify-center gap-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className={`
                 px-5 py-2 rounded-full font-bold transition-colors
                 ${
                   i === step
@@ -190,54 +198,55 @@ export default function OnboardingPage() {
                     : "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground"
                 }
               `}
-              >
-                Step {i}
-              </div>
-            ))}
-          </div>
-          <div>
-            {step === 1 && <Page1_Personal_info formMethods={formMethods} />}
-            {step === 2 && <Page2_Job_Details formMethods={formMethods} />}
-            {step === 3 && <Page3_Skills formMethods={formMethods} />}
-            {step === 4 && (
-              <Page4_Emergency_Contact formMethods={formMethods} />
-            )}
-            {step === 5 && <Page5_Review formMethods={formMethods} />}
-          </div>
+                >
+                  Step {i}
+                </div>
+              ))}
+            </div>
+            <div>
+              {step === 1 && <Page1_Personal_info formMethods={formMethods} />}
+              {step === 2 && <Page2_Job_Details formMethods={formMethods} />}
+              {step === 3 && <Page3_Skills formMethods={formMethods} />}
+              {step === 4 && (
+                <Page4_Emergency_Contact formMethods={formMethods} />
+              )}
+              {step === 5 && <Page5_Review formMethods={formMethods} />}
+            </div>
 
-          <div className="flex flex-col sm:flex-row sm:justify-between gap-2 w-full max-w-md mt-6">
-            <Button
-              type="button"
-              disabled={step === 1}
-              onClick={prev}
-              variant="outline"
-            >
-              Back
-            </Button>
-
-            {step < 5 ? (
-              <Button type="button" onClick={next} variant="outline">
-                Next
-              </Button>
-            ) : (
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-2 w-full max-w-md mt-6">
               <Button
-                type="submit"
-                disabled={formState.isSubmitting || !formState.isValid}
+                type="button"
+                disabled={step === 1}
+                onClick={prev}
                 variant="outline"
               >
-                Submit
+                Back
               </Button>
-            )}
-          </div>
 
-          {/* small debug: draft preview (remove in production) */}
-          {/* <details className="mt-4 text-xs text-gray-600">
+              {step < 5 ? (
+                <Button type="button" onClick={next} variant="outline">
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={formState.isSubmitting || !formState.isValid}
+                  variant="outline"
+                >
+                  Submit
+                </Button>
+              )}
+            </div>
+
+            {/* small debug: draft preview (remove in production) */}
+            {/* <details className="mt-4 text-xs text-gray-600">
           <summary className="cursor-pointer">Draft preview (debug)</summary>
           <pre className="whitespace-pre-wrap text-xs bg-gray-50 p-2 rounded mt-2">
             {JSON.stringify(draft, null, 2)}
           </pre>
         </details> */}
-        </form>
+          </form>
+        )}
       </div>
     </Form>
   );
