@@ -23,6 +23,7 @@ export default function Page1_Personal_Info({ formMethods }) {
 
   return (
     <div className="space-y-4">
+      
       <FormField
         control={formMethods.control}
         name="fullName"

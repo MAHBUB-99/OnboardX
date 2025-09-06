@@ -5,10 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { fullSchema } from "../../lib/schemas";
+import { Form } from "@/components/ui/form";
 
 import Page1_Personal_info from "./Page1_Personal_Info";
-
-import { Form } from "@/components/ui/form";
+import Page2_Job_Details from "./Page2_Job_Details";
+import Page3_Skills from "./Page3_Skills";
 
 const STEP_FIELDS = {
   1: ["fullName", "email", "phone", "dob", "profilePic"],
@@ -62,10 +63,9 @@ export default function OnboardingPage() {
 
   const { handleSubmit, trigger, watch, getValues, formState, reset } =
     formMethods;
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(2);
   const [draft, setDraft] = useState(formMethods.getValues());
 
-  // autosave into component state (draft)
   useEffect(() => {
     const subscription = watch((value) => {
       setDraft(value);
@@ -75,7 +75,6 @@ export default function OnboardingPage() {
     };
   }, [watch]);
 
-  // Prevent tab close if dirty
   useEffect(() => {
     const handler = (e) => {
       if (formState.isDirty) {
@@ -98,7 +97,6 @@ export default function OnboardingPage() {
   };
 
   const onSubmit = async (data) => {
-    // transform salary field
     const out = { ...data };
     if (out.jobType === "Contract") {
       out.hourlyRate = out.salary;
@@ -108,7 +106,6 @@ export default function OnboardingPage() {
       delete out.salary;
     }
 
-    // build FormData for file upload
     const fd = new FormData();
     for (const key of Object.keys(out)) {
       if (key === "profilePic" && out.profilePic && out.profilePic[0]) {
@@ -131,7 +128,7 @@ export default function OnboardingPage() {
       const json = await res.json();
       console.log("Submit response:", json);
       alert("Form submitted — check console for response");
-      reset(); // clear form
+      reset();
       setStep(1);
     } catch (err) {
       console.error("Submit failed", err);
@@ -149,15 +146,12 @@ export default function OnboardingPage() {
       >
         <div>
           {step === 1 && <Page1_Personal_info formMethods={formMethods} />}
-          {/* {step === 2 && <Step2Job />}
-          {step === 3 && <Step3Skills />}
-          {step === 4 && <Step4Emergency />}
-          {step === 5 && <Step5Review />} */}
+          {step === 2 && <Page2_Job_Details formMethods={formMethods}/>}
+          {step === 3 && <Page3_Skills formMethods={formMethods}/>}
         </div>
 
 
-         {/* Navigation Buttons */}
-        <div className="flex justify-between w-full mt-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-2 w-full max-w-md mt-6">
           
             <Button type="button" disabled= {step === 1} onClick={prev} variant="outline">
               Back
