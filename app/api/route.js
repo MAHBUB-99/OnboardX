@@ -1,7 +1,6 @@
-// app/api/emergency-contact/route.js
 import { NextResponse } from "next/server";
 
-// In-memory storage for demo (replace with DB in production)
+// In-memory storage for demo 
 let emergencyContacts = [];
 
 /**
