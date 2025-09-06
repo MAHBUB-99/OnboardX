@@ -23,27 +23,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-
 export default function Page2_Job_Details({ formMethods }) {
   const { isSubmitting, isValid } = formMethods.formState;
+  /**
+   * Watch fields to reactively update UI
+   */
   const { watch } = formMethods;
   const department = watch("department") || "";
   const jobType = watch("jobType") || "";
-
+  /**
+   * Extract unique list of departments from mockManagers
+   */
   const departments = useMemo(() => {
     const deptSet = new Set();
     mockManagers.forEach((m) => deptSet.add(m.department));
     return Array.from(deptSet);
   }, []);
-
+  /**
+   * Filter managers based on currently selected department
+   */
   const managersForDept = useMemo(() => {
     if (!department) return [];
     return mockManagers.filter((m) => m.department === department);
@@ -183,13 +181,13 @@ export default function Page2_Job_Details({ formMethods }) {
         control={formMethods.control}
         name="salary"
         render={({ field }) => {
-          const jobType = watch("jobType"); // watch the job type
+          const jobType = watch("jobType");
           const placeholder =
             jobType === "Full-time"
               ? "Enter annual salary ($30,000 - $200,000)"
               : jobType === "Contract"
               ? "Enter hourly rate ($50 - $150)"
-              : "Enter expected salary"; // default placeholder
+              : "Enter expected salary";
 
           return (
             <FormItem>
@@ -217,26 +215,37 @@ export default function Page2_Job_Details({ formMethods }) {
           control={formMethods.control}
           name="manager"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col space-y-2">
               <FormLabel>Manager</FormLabel>
               <FormControl>
-                <Command className="w-[450px] border rounded-md">
-                  <CommandInput
-                    placeholder="Search manager..."
-                    value={field.value}
-                    onValueChange={(val) => field.onChange(val)}
-                  />
-                  <CommandList>
-                    <CommandEmpty>No manager found.</CommandEmpty>
-                    <CommandGroup>
-                      {managersForDept.map((m) => (
-                        <CommandItem key={m.id} value={m.name}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-[450px] justify-between"
+                      disabled={isSubmitting || managersForDept.length === 0}
+                    >
+                      {field.value ? field.value : "Select a manager"}
+                    </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent className="w-[450px]">
+                    {managersForDept.length === 0 ? (
+                      <DropdownMenuItem disabled>
+                        No manager found
+                      </DropdownMenuItem>
+                    ) : (
+                      managersForDept.map((m) => (
+                        <DropdownMenuItem
+                          key={m.id}
+                          onSelect={() => field.onChange(m.name)}
+                        >
                           {m.name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
+                        </DropdownMenuItem>
+                      ))
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -13,7 +13,6 @@ export default function Page5_Review({ formMethods }) {
   const { watch, control, formState } = formMethods;
   const data = watch();
 
-  // Helper to format phone numbers and arrays
   const formatValue = (val) => {
     if (Array.isArray(val)) return val.join(", ");
     if (typeof val === "object" && val !== null) return JSON.stringify(val, null, 2);
@@ -24,7 +23,6 @@ export default function Page5_Review({ formMethods }) {
     <div className="space-y-6 w-full max-w-xl">
       <h2 className="text-xl font-bold mb-2">Review Your Information</h2>
       <div className="space-y-2">
-        {/* Personal Info */}
         <div className="border-b pb-2 mb-2">
           <h3 className="font-semibold">Personal Info</h3>
           <div>Full Name: <span className="font-mono">{data.fullName}</span></div>
@@ -44,7 +42,6 @@ export default function Page5_Review({ formMethods }) {
           )}
         </div>
 
-        {/* Job Details */}
         <div className="border-b pb-2 mb-2">
           <h3 className="font-semibold">Job Details</h3>
           <div>Department: <span className="font-mono">{data.department}</span></div>
@@ -60,7 +57,6 @@ export default function Page5_Review({ formMethods }) {
           <div>Manager: <span className="font-mono">{data.manager}</span></div>
         </div>
 
-        {/* Skills */}
         <div className="border-b pb-2 mb-2">
           <h3 className="font-semibold">Skills</h3>
           <div>Primary Skills: <span className="font-mono">{formatValue(data.primarySkills)}</span></div>
@@ -93,7 +89,6 @@ export default function Page5_Review({ formMethods }) {
           </div>
         </div>
 
-        {/* Emergency Contact */}
         <div className="border-b pb-2 mb-2">
           <h3 className="font-semibold">Emergency Contact</h3>
           <div>Contact Name: <span className="font-mono">{data.contactName}</span></div>
@@ -108,7 +103,6 @@ export default function Page5_Review({ formMethods }) {
         </div>
       </div>
 
-      {/* Confirm Checkbox */}
       <FormField
         control={control}
         name="confirm"
