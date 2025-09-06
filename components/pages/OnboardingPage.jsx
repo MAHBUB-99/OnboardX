@@ -63,7 +63,7 @@ export default function OnboardingPage() {
 
   const { handleSubmit, trigger, watch, getValues, formState, reset } =
     formMethods;
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(1);
   const [draft, setDraft] = useState(formMethods.getValues());
 
   useEffect(() => {
